@@ -6,7 +6,7 @@
 
 class ShipLoader
 {
-
+    private $pdo;
     /**
      * @return Ship[];
      */
@@ -36,8 +36,7 @@ class ShipLoader
 
     public function findOneById($id)
     {
-        $pdo = new PDO('mysql:host=localhost;dbname='.'oo_battle', 'root', 'Tanglewood@7');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $pdo = $this->getPDO();
 
         // Set statement result ro query,
         $statement = $pdo->prepare('SELECT * FROM ship WHERE id = :id');
@@ -67,10 +66,8 @@ class ShipLoader
     // Method for querying ships
     private function queryForShips()
     {
-        // Instead we will grab ships from the database instead of hard coding them.
-        $pdo = new PDO('mysql:host=localhost;dbname='.'oo_battle', 'root', 'Tanglewood@7');
-        $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
+        $pdo = $this->getPDO();
         // Set statement result ro query,
         $statement = $pdo->prepare('SELECT * FROM ship');
         $statement->execute();
@@ -78,5 +75,28 @@ class ShipLoader
         $shipArray = $statement->fetchAll(PDO::FETCH_ASSOC);
 
         return $shipArray;
+    }
+
+    /**
+     * @return PDO
+     */
+
+    private function getPDO()
+    {
+        // set these credentials in a private method so we dont need to keep
+        // duplicating things.
+
+        // Make sure only one PDO object is being created so there arent so many open database connections,
+
+        if($this->pdo === null){
+            $pdo = new PDO('mysql:host=localhost;dbname='.'oo_battle', 'root', 'Tanglewood@7');
+            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
+            // Set the pdo property to a pdo object only if there isnt one.
+            $this->pdo = $pdo;
+        }
+
+
+        return $this->pdo;
     }
 }
